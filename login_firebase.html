@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Software Intern Assignment</title>
+</head>
+<body style="background-color: #FFE4E1">
+  <h1>Software Intern Assignment : By Srija</h1>
+  <div id="LoginScreen">
+    <button id="login">Login/SignUp with Google</button>
+  </div>
+  <div id="dashboard">
+    <div id="userDetails"></div>
+    <button id="logout">logout</button>
+  </div>
+  <div id="mail">
+  <p id="or">Or login/signup via e-mail</p>
+  <input type="email" placeholder="email" id="email">
+  <input type="password" placeholder="password" id="password">
+  <button onclick="signUp()" id="signUp">Sign Up</button>
+  <button onclick="signIn()" id="signIn">Sign In</button>
+  <button onclick="signOut()" style="display: none" id="signOut">Sign Out</button>
+  </div>
+  <!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
+
+<!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+<script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-analytics.js"></script>
+<script src="/__/firebase/8.6.2/firebase-auth.js"></script>
+
+<script>
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyDuFYbq6ngFzlP7HMfIF5g5Rg91-m0OFJI",
+    authDomain: "fireauth-99341.firebaseapp.com",
+    projectId: "fireauth-99341",
+    storageBucket: "fireauth-99341.appspot.com",
+    messagingSenderId: "273915398651",
+    appId: "1:273915398651:web:f586af961f3565b69ce35e",
+    measurementId: "G-RVXYVRREK7"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  firebase.analytics();
+
+  document.getElementById('dashboard').style.display="none"
+  document.getElementById('login').addEventListener('click',GoogleLogin)
+  document.getElementById('logout').addEventListener('click',LogoutUser)
+
+  let provider = new firebase.auth.GoogleAuthProvider()
+
+  function GoogleLogin(){
+    console.log('login Btn Call')
+    firebase.auth().signInWithPopup(provider).then(res=>{
+      console.log(res.user)
+      document.getElementById('LoginScreen').style.display="none"
+      document.getElementById('dashboard').style.display="block"
+      dobfind(res.user)
+    }).catch(e=>{
+      console.log(e)
+    })
+  }
+
+  function dobfind(user){
+    document.getElementById('or').style.display="none"
+      document.getElementById('email').style.display="none"
+      document.getElementById('password').style.display="none"
+      document.getElementById('signIn').style.display="none"
+      document.getElementById('signUp').style.display="none"
+      document.getElementById('signOut').style.display="none"
+    document.getElementById('userDetails').innerHTML = `
+    <div id="showing" style="display:block">
+    <img src="${user.photoURL}" style="width:10%">
+    <p>Name : ${user.displayName}</p>
+    <p>Email: ${user.email}</p> 
+    <p id="para"> Please enter your date of birth </p>
+    <input type="date" id="dob">
+        <button onclick="displayUser()" id="btn">Submit</button>        
+    <p id="para-2" style="display:none">Welcome ${user.email}</p>
+    <p id="show" style="display:none">Your birthday is on</p>
+    <p id="bday"></p>
+    </div>
+    ` 
+  }
+
+
+
+  function LogoutUser(){
+    console.log('Logout Btn Call')
+    firebase.auth().signOut().then(()=>{
+      document.getElementById('LoginScreen').style.display="block"
+      document.getElementById('dashboard').style.display="none"
+      document.getElementById('email').style.display="block"
+      document.getElementById('password').style.display="block"
+      document.getElementById('or').style.display="block"
+      document.getElementById('signIn').style.display="block"
+      document.getElementById('signUp').style.display="block"
+      document.getElementById('signOut').style.display="block"
+    }).catch(e=>{
+      console.log(e)
+    })
+  }
+  function signUp(){
+    const auth = firebase.auth();
+    var email = document.getElementById("email");
+    var password = document.getElementById("password");
+    const promise = auth.createUserWithEmailAndPassword(email.value, password.value);
+    promise.catch(e => alert(e.message));
+    alert("signed up");
+  }
+
+  function signIn(){
+    const auth = firebase.auth();
+    var email = document.getElementById("email");
+    var password = document.getElementById("password");
+    const promise = auth.signInWithEmailAndPassword(email.value, password.value);
+    promise.catch(e => alert(e.message));
+
+     auth.signInWithEmailAndPassword(email.value, password.value).then(res=>{
+      console.log(res.user)
+      document.getElementById('LoginScreen').style.display="none"
+      document.getElementById('email').style.display="none"
+      document.getElementById('password').style.display="none"
+      document.getElementById('or').style.display="none"
+      document.getElementById('signIn').style.display="none"
+      document.getElementById('signUp').style.display="none"
+      document.getElementById('signOut').style.display="none"
+      document.getElementById('dashboard').style.display="block"
+      finddob(res.user)
+    })   
+  }
+  function finddob(user){
+     document.getElementById('userDetails').innerHTML = `
+    <p id="para"> Please enter your date of birth </p>
+    <input type="date" id="dob">
+        <button onclick="displayUser()" id="btn">Submit</button>        
+    <p id="para-2" style="display:none">Welcome ${user.email}</p>
+    <p id="show" style="display:none">Your birthday is on</p>
+    <p id="bday"></p>
+    `
+  }
+  function displayUser(){
+    document.getElementById('para').style.display="none"
+      document.getElementById('dob').style.display="none"
+      document.getElementById('btn').style.display="none"
+      document.getElementById("logout").style.display="none"
+      document.getElementById("signOut").style.display="block"
+      document.getElementById('para-2').style.display="block"
+      var x = document.getElementById("dob").value
+      document.getElementById("bday").style.display="block"
+      document.getElementById("show").style.display="block"
+      document.getElementById("bday").innerHTML = x;
+
+  }
+  function signOut(){
+    const auth = firebase.auth();
+    auth.signOut();
+     document.getElementById('LoginScreen').style.display="block"
+      document.getElementById('dashboard').style.display="none"
+      document.getElementById('email').style.display="block"
+      document.getElementById('password').style.display="block"
+      document.getElementById('or').style.display="block"
+      document.getElementById('signIn').style.display="block"
+      document.getElementById('signUp').style.display="block"
+      document.getElementById('signOut').style.display="none"
+      document.getElementById('email').value = "email"
+      document.getElementById('password').value = "password"
+
+  }
+
+</script>
+
+</body>
+</html>
